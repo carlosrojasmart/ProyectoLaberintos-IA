@@ -2,6 +2,7 @@ import numpy as np
 from collections import deque
 import heapq
 import time
+import matplotlib.pyplot as plt
 
 # Función que lee una matriz de adyacencia desde un archivo de texto
 def leer_matriz_adyacencia(ruta_archivo):
@@ -202,3 +203,60 @@ print(camino_primero_anchura if camino_primero_anchura else "No se encontró cam
 print("\nAlgoritmo A*:")
 a_estrella_camino = grafo.a_estrella(nodo_inicio, nodo_meta)
 print(a_estrella_camino if a_estrella_camino else "No se encontró camino con algoritmo A*")
+
+# ------------------- Dibujo Laberintos ----------------------
+
+def dibujar_laberinto(matriz, camino=None):
+    # Crear una figura y un eje para el dibujo
+    fig, ax = plt.subplots()
+    
+    # Dibujar cada celda del laberinto
+    for i in range(len(matriz)):
+        for j in range(len(matriz[0])):
+            if matriz[i][j] == 1:
+                ax.add_patch(plt.Rectangle((j, len(matriz) - i - 1), 1, 1, color='black'))  # Muros
+            elif matriz[i][j] == 2:
+                ax.add_patch(plt.Rectangle((j, len(matriz) - i - 1), 1, 1, color='green'))  # Inicio
+            elif matriz[i][j] == 3:
+                ax.add_patch(plt.Rectangle((j, len(matriz) - i - 1), 1, 1, color='red'))    # Meta
+    
+    # Si hay un camino, dibujarlo
+    if camino:
+        x = [pos[1] + 0.5 for pos in camino]
+        y = [len(matriz) - pos[0] - 0.5 for pos in camino]
+        ax.plot(x, y, color='blue', linewidth=2)
+    
+    # Configurar límites y mostrar la cuadrícula
+    ax.set_xlim(0, len(matriz[0]))
+    ax.set_ylim(0, len(matriz))
+    ax.set_aspect('equal')
+    ax.grid(True)
+    
+    # Mostrar el laberinto
+    plt.show()
+
+# Leer la matriz de adyacencia desde el archivo 'laberinto.txt' nuevamente para obtener la matriz
+with open('laberinto.txt', 'r') as archivo:
+    dimensiones = archivo.readline().strip().strip('(').strip(')').split(',')
+    ancho = int(dimensiones[0])
+    alto = int(dimensiones[1])
+    
+    matriz = []
+    for linea in archivo:
+        fila = list(map(int, linea.strip().strip('[]').split(',')))
+        matriz.append(fila)
+
+# Mostrar el laberinto con el camino DFS
+print("\nDibujando el camino encontrado por DFS:")
+if camino_primero_profundidad:
+    dibujar_laberinto(matriz, camino_primero_profundidad)
+
+# Mostrar el laberinto con el camino BFS
+print("\nDibujando el camino encontrado por BFS:")
+if camino_primero_anchura:
+    dibujar_laberinto(matriz, camino_primero_anchura)
+
+# Mostrar el laberinto con el camino A*
+print("\nDibujando el camino encontrado por A*:")
+if a_estrella_camino:
+    dibujar_laberinto(matriz, a_estrella_camino)
